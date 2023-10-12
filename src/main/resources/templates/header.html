@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<!-- 기본 레이아웃 방법-->
+<header th:fragment="header">
+<hr>
+	<a href="/">HOME</a>
+	<a href="/gallery">Gallery</a>
+	<span th:if="${session.userid}!=null">
+		<a th:onclick="|javascript:logout()|">Logout</a>
+		&nbsp;&nbsp;[[${session.userid}]] 님
+	</span>
+	<!-- 테스트를 위해 여러 로그인 파라미터 준비 -->
+	<span th:unless="${session.userid}!=null">
+			<a th:href="@{/login(userid=twice)}">로그인(twice)</a> |
+			<a th:href="@{/login(userid=momo)}">로그인(momo)</a> |
+			<a th:href="@{/login(userid=gdhong)}">로그인(gdhong)</a> |
+	</span>
+<hr>
+<!-- 1-e. 소켓 통신을 하면 전달 받은 데이터 출력할 태그 작성 -->
+	<div style="border: 1px solid rgb(128,128,128); padding: 5px; width:400px; color: blue;" id="message">
+	소켓 통신으로 전달 받은 메시지 보이는 곳.
+	</div>
+<hr>
+</header>
+</body>
+</html>

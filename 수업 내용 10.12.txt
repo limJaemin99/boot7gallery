@@ -1,0 +1,42 @@
+[오늘의 주제 : 파일 업로드 , 웹 소켓]
+
+1. gallery 기존 테이블과 시퀀스 확인
+
+2. tbl_hearts 새로운 테이블은 좋아요 기록
+
+3. 파일 업로드 : 서버의 로컬 경로와 URL 확인
+    ※ build.gradle 에서 의존성 추가 해야 함 ※
+    - 1) application.properties : 멀티 파트 로컬 위치
+    - 2) ApplicationConfig.java : 로컬 위치에 대한 URL 설정
+    - 3) GalleryServiceImpl.java : 실제 업로드 처리를 위한 경로 설정
+
+4. DTO 클래스 : MultipartFile 타입의 필드가 있어야 View 에서 Controller 로 매핑이 된다.
+               ★ View 의 file 타입의 input name 과 필드 변수명이 같아야 자동 매핑이 된다.
+
+5. 컨트롤러 : GalleryController.java
+
+6. 1차 파일 업로드 테스트
+
+7. 웹 소켓
+    - HTTP 프로토콜 : 비연결성 (비동기식/동기식 모두 한번 요청/응답이 일어나면 그걸로 끝(연결이 유지되지 않는다.))
+    - Socket : TCP 프로토콜. 한번 Connect 가 생성되면 Close 하기 전까지 연결 유지(비연결성과 반대)
+
++ 자바스크립트에서 웹 소켓을 이용하여 서버가 보내는 메시지를 Close 하기 전까지 받는 구현을 해 보기
++ 웹 소켓을 사용할 때는 프로토콜이 [ws] 이다. 따라서 URL이 ws://localhost:8086/~ 이다.
++ 서버(스프링 자바)에서는 ws 프로토콜 요청에 대한 응답을 처리하는 설정과 핸들러를 구현한다.
+
++ 웹 소켓과 관련된 라이브러리는 기본 websocket 을 사용할 예정
++ 웹 소켓은 브라우저에서 제공된다.
+
+[1] socketConnect.js 에서는 웹 소켓을 생성하고 동작에 필요한 함수를 정의
+[2] socket 패키지 중 2개의 자바 클래스는 무슨 역할을 하는지 확인하기
+
+8. 좋아요 클릭할 때 필요한 기능을 구현
+    - 1) tbl_hearts 테이블 확인
+    - 2) DTO : Heart.java (요청 dto) , HeartResponseDTO (좋아요 응답 DTO)
+    - 3) 서비스 메소드 구현 (서버) : 좋아요 check 의 true/false 에 따라 db 에 각각 insert/delete
+    - 4) 자바스크립트의 heart 함수 (클라이언트)
+    - 5) AlertHandler.java : [4번] 의 요청으로 [3번] 의 서비스를 실행하고 응답을 보내기
+                                ▶ 특정 사용자에게 보내기 (세션을 map 에 저장)
+      * 전처리 작업 : 자바스크립트에서 좋아요 클릭한 글에는 체크박스 설정하기, 좋아요 클릭하면 카운트 +1 또는 -1 하기
+                          컨트롤러에서 내가 좋앙요 한 글 목록 model로 전달하기

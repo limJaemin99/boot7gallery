@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Gallery</title>
+</head>
+<body>
+<header th:replace="header.html::header"></header>  <!-- 1. 레이아웃의 상단은 header.html 의 header 조각 가져오기-->
+<h2>INDEX</h2>
+
+
+<!-- 2-a. 반복되는 코드로 footer.html 작성하기 -->
+<footer th:replace="footer.html::footer"></footer>
+
+</body>
+</html>

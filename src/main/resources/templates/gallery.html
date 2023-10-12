@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Gallery</title>
+</head>
+<body>
+<header th:replace="header.html::header"></header>  <!-- 레이아웃의 상단은 header.html -->
+<h3>파일업로드 테스트</h3>
+<hr>
+<form action="gallery" method="post" enctype="multipart/form-data">
+	<input type="text" th:value="${session.userid}" name="writer" readonly>
+	<input type="text" placeholder="제목" name="title"><br>
+	이미지 파일은 최대 3개로 첨부합니다.<br>
+	<input type="file" name="pics" accept="image/*"><br>
+	<input type="file" name="pics" accept="image/*"><br>
+	<input type="file" name="pics" accept="image/*"><br>
+	<button>전송</button>
+</form>
+<hr>
+<h3>Gallery 테이블의 내용을 출력합니다.</h3>
+<hr>
+<div class="gallery">
+	<th:block th:each="vo,status:${list}">   
+<!-- jstl이 foreach에서 varstatus로 현재for 실행상태. status 변수로 index,count 값들을 가져오기 -->
+		<!-- 그림(업로드 이미지) 를 출력 -->
+		<div>([[${status.count} ]])[[${vo.title }]],[[${vo.writer}]]
+			<input type="checkbox" th:value="${vo.idx}"  class="heart"
+				   th:id="${vo.idx}" th:data-num="${vo.writer}">
+			<!--	 th:onclick="|heart('[[${vo.writer}]]',this.checked,'[[${vo.idx}]]')|"-->
+			<!--  설명:heart 함수는 자바스크립트에서 작성 -->
+			<label th:for="${vo.idx}">좋아요</label>
+			<!--  설명: 좋아요 갯수를 바꾸기 위해 id속성값 구분되도록 변수 이용함.
+					   값 출력을 위해 테이블 hearts 컬럼에 임의값으로 수정하기(readme.md 참고)
+			 -->
+			::<span th:id="span+${vo.idx}">[[${vo.hearts}]]</span> 개::
+		</div>
+		<ul style="display: flex;flex-direction: row;margin-bottom:30px;">
+		<!--  #strings 는 타임리트 유틸객체.메소드를 갖습니다. 문자열을 , 분리해서 배열로 변환
+			  pic는 배열요소를 1개씩 순서대로 저장. i는 foreach의 상태변수
+		-->
+			<th:block th:each="pic,i:${#strings.setSplit(vo.filenames,',')}">
+			<li style="width:200px;height: 200px;">
+				<!-- /uploads/ url 경로는 ApplicationConfig 에서 설정합니다. -->
+				<img th:src="|@{/uploads}/${pic}|" width="100%" height="100%" style="object-fit:cover"><br>
+				<span style="font-size: 0.7em">[[${pic}]]([[${i.index}]])</span>
+			</li>
+			</th:block>
+		</ul>
+	</th:block>
+</div>
+<!-- 3-g. 로그인 사용자가 좋아요 한 글목록 변수값으로 좋아요 체크 표시 해두기
+	 GalleryController 에서 값을 저장해 주어야 함.
+  -->
+<script type="text/javascript">
+	const userid = '[[${session.userid}]]'		//string으로 사용되도록 ''표시함
+
+	document.querySelector(".gallery").addEventListener('click',e=>{
+		e.stopPropagation()
+		const target = e.target
+		if(target.tagName != 'INPUT') return	//.gallery 는 div 의 class 이므로 div 어느곳을 눌러도 alert() 이 발생한다.
+												//따라서 INPUT 이 아니면 아래 코드들을 실행할 수 없게 해줘야 한다.
+		if(userid != '') {		//로그인 되었을 때만 이벤트 리스너 등록
+			const idx = target.getAttribute("id")
+			const value = target.checked	// true/false
+			const writer = target.getAttribute("data-num")
+
+			heart(idx,value,writer)
+			//좋아요 카운트 변경은 응답 받은 것으로 변경 or 아래와 같이 간단히
+			//좋아요 카운트를 변경할 태그 요소 가져와 값 변경하기
+			const spanEle = document.querySelector('#span'+idx)
+			if(target.checked)	//체크 (true)
+				spanEle.innerHTML = Number(spanEle.innerHTML) + 1	//원래 값 +1
+			else	//체크 해제 (false)
+				spanEle.innerHTML = Number(spanEle.innerHTML) - 1	//원래 값 -1
+
+			console.log(spanEle)
+		} else {
+			alert('로그인이 필요합니다.')
+			e.preventDefault()
+		}
+	})	//EvenetListener end
+
+	let hearts = [[${myhearts}]]	//내가 좋아요 한 글 번호 배열 가져와서 체크박스 상태 설정하기
+	if(hearts && hearts.length > 0){
+		document.querySelectorAll('.heart').forEach(item => {
+			if(hearts.includes(Number(item.value)))
+				item.checked = true;
+			else
+				item.checked = false;
+		})
+	}
+
+
+</script>
+
+<!-- 2-a. 소켓 통신 자바스크립트 소스 추가  -->
+<script src="/js/socketConnect.js"></script>
+
+</body>
+</html>

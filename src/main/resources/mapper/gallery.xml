@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.iclass.mvc.dao.GalleryMapper">
+	<select id="getList" resultType="Gallery">
+		select * from gallery order by idx desc
+	</select>
+	<insert id="save" parameterType="Gallery">
+		insert into gallery(idx,title,filenames,writer) 
+		values(gal_idx_seq.nextval,#{title},#{filenames},#{writer})
+	</insert>
+
+	<select id="getOne" resultType="Gallery" parameterType="String">
+		select * from gallery where writer = #{writer}
+	</select>
+	<!-- ////////////////3-a. 좋아요////////////////// -->
+	<!-- 좋아요 갯수 업데이트 -->
+	<update id="updateHeartCount" parameterType="int">
+		UPDATE gallery SET hearts = 
+		(SELECT count(*) FROM tbl_hearts WHERE idx = #{idx})
+		WHERE idx = #{idx}
+	</update>
+	
+	<!--  로그인 사용자의 좋아요 한 글 목록-->
+	<select id="myHearts" parameterType="String" resultType="int">
+		SELECT idx FROM tbl_hearts
+		WHERE userid = #{userid}
+	</select>
+	
+	<!-- 좋아요 등록 -->
+	<insert id="heartTrue" parameterType="Heart">
+		INSERT INTO tbl_hearts(userid,idx)  
+		VALUES (#{userid},#{idx})
+	</insert>
+	
+	<!-- 좋아요 취소 -->
+	<insert id="heartFalse" parameterType="Heart">
+		DELETE FROM tbl_hearts 
+		WHERE idx = #{idx} AND userid=#{userid} 
+	</insert>
+	
+	<!--  idx글 번호의 좋아요 갯수-->
+	<select id="hearts" parameterType="int" resultType="int">
+		select hearts 
+		from gallery
+		where idx = #{idx}
+	</select>
+
+</mapper>
+
